@@ -19,7 +19,6 @@ export default function DashboardMenu({
   active,
   setActive,
 }: DashboardMenuProps) {
-
   const menus = [
     {
       icon: <LayoutDashboard size={22} />,
@@ -54,31 +53,40 @@ export default function DashboardMenu({
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6">
 
-      <h2 className="text-2xl font-bold mb-6">
+      {/* Navigation Heading */}
+      <h2 className="text-2xl font-bold mb-6 text-slate-900">
         Navigation
       </h2>
 
       <div className="space-y-3">
 
-        {menus.map((item) => (
+        {menus.map((item) => {
+          const isActive = active === item.title;
 
-          <button
-            key={item.title}
-            onClick={() => setActive(item.title)}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition
-            ${
-              active === item.title
-                ? "bg-blue-600 text-white"
-                : "hover:bg-blue-50 hover:text-blue-600"
-            }`}
-          >
-            {item.icon}
+          return (
+            <button
+              key={item.title}
+              onClick={() => setActive(item.title)}
+              type="button"
+              className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition font-semibold ${
+                isActive
+                  ? "!bg-blue-600 !text-white hover:!bg-blue-700"
+                  : "text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+              }`}
+            >
+              {/* Icon */}
+              <span className={isActive ? "!text-white" : "text-slate-900"}>
+                {item.icon}
+              </span>
 
-            <span>{item.title}</span>
+              {/* Menu Text */}
+              <span className={isActive ? "!text-white" : "text-slate-900"}>
+                {item.title}
+              </span>
 
-          </button>
-
-        ))}
+            </button>
+          );
+        })}
 
       </div>
 
