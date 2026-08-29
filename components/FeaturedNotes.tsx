@@ -18,7 +18,7 @@ export default function FeaturedNotes() {
               PDF Notes
             </p>
 
-            <button className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button className="mt-5 bg-blue-600 !text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
               Download
             </button>
           </div>
@@ -32,7 +32,7 @@ export default function FeaturedNotes() {
               PDF Notes
             </p>
 
-            <button className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button className="mt-5 bg-blue-600 !text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
               Download
             </button>
           </div>
@@ -46,7 +46,7 @@ export default function FeaturedNotes() {
               PDF Notes
             </p>
 
-            <button className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button className="mt-5 bg-blue-600 !text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
               Download
             </button>
           </div>

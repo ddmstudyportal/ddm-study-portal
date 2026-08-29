@@ -225,7 +225,7 @@ export default function SearchContent() {
                           `/note/${note.id}`
                         )
                       }
-                      className="mt-5 w-full bg-blue-600 text-white px-5 py-3 rounded-lg font-semibold hover:bg-blue-700"
+                      className="mt-5 w-full bg-blue-600 text-black px-5 py-3 rounded-lg font-semibold hover:bg-blue-700"
                     >
                       View Note →
                     </button>

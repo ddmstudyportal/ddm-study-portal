@@ -95,7 +95,7 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={handleSearch}
-                className="sm:w-36 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-7 py-4 rounded-xl transition-all duration-200 hover:scale-[1.02] shadow-md"
+                className="sm:w-36 bg-yellow-400 hover:bg-yellow-300 !text-black font-bold px-7 py-4 rounded-x1 transition-all duration-200 hover:scale-[1.02] shadow-md"
               >
                 Search
               </button>
@@ -112,7 +112,7 @@ export default function Hero() {
           <button
             type="button"
             onClick={() => router.push("/classes")}
-            className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold px-7 py-4 rounded-xl shadow-lg hover:bg-gray-100 hover:scale-105 transition-all duration-200"
+            className="inline-flex items-center justify-center gap-2 bg-white !text-blue-700 font-bold px-7 py-4 rounded-xl shadow-lg hover:bg-gray-100 hover:scale-105 transition-all duration-200"
           >
             <BookOpen size={21} />
             Explore Classes
@@ -121,7 +121,7 @@ export default function Hero() {
           <button
             type="button"
             onClick={() => router.push("/downloads")}
-            className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-black font-bold px-7 py-4 rounded-xl shadow-lg hover:bg-yellow-300 hover:scale-105 transition-all duration-200"
+            className="inline-flex items-center justify-center gap-2 bg-yellow-400 !text-black font-bold px-7 py-4 rounded-xl shadow-lg hover:bg-yellow-300 hover:scale-105 transition-all duration-200"
           >
             <Download size={21} />
             Download Notes
