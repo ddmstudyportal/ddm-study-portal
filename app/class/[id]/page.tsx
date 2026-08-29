@@ -190,23 +190,23 @@ export default function ClassPage() {
 
           <button
             onClick={() => router.back()}
-            className="mb-6 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg"
+            className="mb-6 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-semibold"
           >
             ← Back
           </button>
 
 
-          <h2 className="text-4xl md:text-5xl font-extrabold">
+          <h2 className="text-4xl md:text-5xl font-extrabold !text-white">
             Class {classId}
           </h2>
 
 
-          <p className="mt-3 text-lg text-blue-100">
+          <p className="mt-3 text-lg !text-white font-medium">
             Study Notes & Learning Material
           </p>
 
 
-          <div className="mt-6 inline-block bg-white/20 px-5 py-2 rounded-full">
+          <div className="mt-6 inline-block bg-white/20 text-white px-5 py-2 rounded-full font-semibold">
             📚 {notes.length} Study Material
           </div>
 

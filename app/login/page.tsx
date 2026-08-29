@@ -31,7 +31,6 @@ export default function LoginPage() {
 
       setLoading(true);
 
-      // Firebase Authentication Login
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -40,7 +39,6 @@ export default function LoginPage() {
 
       const user = userCredential.user;
 
-      // Firestore se User Data
       const userRef = doc(db, "users", user.uid);
 
       const userSnap = await getDoc(userRef);
@@ -50,12 +48,10 @@ export default function LoginPage() {
         setMessage("User data not found.");
 
         return;
-
       }
 
       const userData = userSnap.data();
 
-      // Role Check
       if (userData.role === "admin") {
 
         router.push("/admin");
@@ -101,27 +97,34 @@ export default function LoginPage() {
 
       <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-lg">
 
+        {/* Header */}
+
         <div className="text-center mb-8">
 
           <h1 className="text-4xl font-bold text-blue-600">
             DDM
           </h1>
 
-          <p className="text-gray-500">
+          <p className="text-gray-700 font-medium">
             Dream • Discover • Master
           </p>
 
-          <h2 className="text-2xl font-bold mt-6">
+          <h2 className="text-2xl font-bold mt-6 text-gray-900">
             Login
           </h2>
 
         </div>
 
+
+        {/* Login Form */}
+
         <form onSubmit={handleLogin} className="space-y-5">
+
+          {/* Email */}
 
           <div>
 
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-semibold text-gray-900">
               Email Address
             </label>
 
@@ -130,14 +133,17 @@ export default function LoginPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
           </div>
 
+
+          {/* Password */}
+
           <div>
 
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-semibold text-gray-900">
               Password
             </label>
 
@@ -146,38 +152,45 @@ export default function LoginPage() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
           </div>
 
+
+          {/* Error */}
+
           {message && (
 
-            <p className="text-center text-red-600 font-medium">
+            <p className="text-center text-red-600 font-semibold">
               {message}
             </p>
 
           )}
 
+
+          {/* Login Button */}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-
             {loading ? "Logging in..." : "Login"}
-
           </button>
 
         </form>
 
-        <p className="text-center mt-6 text-gray-600">
+
+        {/* Register */}
+
+        <p className="text-center mt-6 text-gray-800 font-medium">
 
           Don't have an account?
 
           <a
             href="/register"
-            className="text-blue-600 ml-2 hover:underline"
+            className="text-blue-600 font-semibold ml-2 hover:underline"
           >
             Register
           </a>
@@ -187,7 +200,5 @@ export default function LoginPage() {
       </div>
 
     </main>
-
   );
-
 }
