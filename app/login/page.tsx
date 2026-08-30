@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -17,7 +16,6 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-
     e.preventDefault();
 
     setMessage("");
@@ -28,9 +26,9 @@ export default function LoginPage() {
     }
 
     try {
-
       setLoading(true);
 
+      // Firebase Authentication Login
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -39,33 +37,38 @@ export default function LoginPage() {
 
       const user = userCredential.user;
 
+      // Firestore User Document
       const userRef = doc(db, "users", user.uid);
-
       const userSnap = await getDoc(userRef);
 
-      if (!userSnap.exists()) {
+      let userData: any;
 
-        setMessage("User data not found.");
+      if (userSnap.exists()) {
+        // Existing user data
+        userData = userSnap.data();
+      } else {
+        // User exists in Firebase Auth but Firestore data is missing
+        userData = {
+          uid: user.uid,
+          email: user.email || email,
+          role: "student",
+          createdAt: new Date(),
+        };
 
-        return;
+        await setDoc(userRef, userData);
       }
 
-      const userData = userSnap.data();
-
+      // Admin / Student Redirect
       if (userData.role === "admin") {
-
         router.push("/admin");
-
       } else {
-
         router.push("/dashboard");
-
       }
 
     } catch (error: any) {
+      console.log("Login Error:", error);
 
       switch (error.code) {
-
         case "auth/invalid-credential":
           setMessage("Invalid email or password.");
           break;
@@ -78,27 +81,25 @@ export default function LoginPage() {
           setMessage("Incorrect password.");
           break;
 
-        default:
-          setMessage(error.message);
+        case "auth/too-many-requests":
+          setMessage("Too many attempts. Please try again later.");
+          break;
 
+        default:
+          setMessage(error.message || "Login failed.");
       }
 
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <main className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-100 flex items-center justify-center px-6 py-10">
 
       <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-lg">
 
         {/* Header */}
-
         <div className="text-center mb-8">
 
           <h1 className="text-4xl font-bold text-blue-600">
@@ -115,13 +116,10 @@ export default function LoginPage() {
 
         </div>
 
-
         {/* Login Form */}
-
         <form onSubmit={handleLogin} className="space-y-5">
 
           {/* Email */}
-
           <div>
 
             <label className="block mb-2 font-semibold text-gray-900">
@@ -138,9 +136,7 @@ export default function LoginPage() {
 
           </div>
 
-
           {/* Password */}
-
           <div>
 
             <label className="block mb-2 font-semibold text-gray-900">
@@ -157,20 +153,14 @@ export default function LoginPage() {
 
           </div>
 
-
           {/* Error */}
-
           {message && (
-
             <p className="text-center text-red-600 font-semibold">
               {message}
             </p>
-
           )}
 
-
           {/* Login Button */}
-
           <button
             type="submit"
             disabled={loading}
@@ -181,9 +171,7 @@ export default function LoginPage() {
 
         </form>
 
-
         {/* Register */}
-
         <p className="text-center mt-6 text-gray-800 font-medium">
 
           Don't have an account?

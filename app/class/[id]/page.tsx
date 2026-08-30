@@ -413,6 +413,13 @@ export default function ClassPage() {
 
                   )}
 
+                  {/* MATERIAL TYPE */}
+                  {note.materialType && (
+                    <span className="inline-block ml-2 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                      {note.materialType}
+                    </span>
+                  )}
+
 
                   {/* TITLE */}
 

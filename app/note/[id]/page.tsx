@@ -215,6 +215,10 @@ export default function NoteDetailsPage() {
                 {note.subject}
               </span>
 
+              <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
+                {note.materialType || "Study Notes"}
+              </span>
+
             </div>
 
 

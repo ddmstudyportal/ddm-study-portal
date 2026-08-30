@@ -55,6 +55,7 @@ export default function RegisterPage() {
         name,
         mobile,
         email,
+        role: "student",
         createdAt: new Date(),
       });
 
