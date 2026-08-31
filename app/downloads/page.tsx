@@ -25,6 +25,14 @@ export default function DownloadsPage() {
   const [selectedSubject, setSelectedSubject] =
     useState("All");
 
+  const [selectedMedium, setSelectedMedium] =
+    useState("All");
+
+
+  // =========================================
+  // LOAD NOTES
+  // =========================================
+
   useEffect(() => {
     const loadNotes = async () => {
       try {
@@ -50,6 +58,7 @@ export default function DownloadsPage() {
 
     loadNotes();
   }, []);
+
 
   // =========================================
   // MATERIAL TYPES
@@ -86,6 +95,7 @@ export default function DownloadsPage() {
     },
   ];
 
+
   // =========================================
   // CLASSES
   // =========================================
@@ -98,6 +108,7 @@ export default function DownloadsPage() {
     "9",
     "10",
   ];
+
 
   // =========================================
   // SUBJECTS
@@ -112,13 +123,40 @@ export default function DownloadsPage() {
     "Hindi",
   ];
 
+
+  // =========================================
+  // MEDIUMS
+  // =========================================
+
+  const mediums = [
+    {
+      name: "All",
+      label: "🌐 All Mediums",
+    },
+    {
+      name: "English",
+      label: "🇬🇧 English Medium",
+    },
+    {
+      name: "Hindi",
+      label: "🇮🇳 Hindi Medium",
+    },
+  ];
+
+
   // =========================================
   // FILTER MATERIALS
   // =========================================
 
   const filteredNotes = notes.filter((note) => {
+
     const noteType =
-      note.materialType || note.type || "Study Notes";
+      note.materialType ||
+      note.type ||
+      "Study Notes";
+
+    const noteMedium =
+      note.medium || "";
 
     const typeMatch =
       selectedType === "All" ||
@@ -133,12 +171,30 @@ export default function DownloadsPage() {
       selectedSubject === "All" ||
       note.subject === selectedSubject;
 
+    const mediumMatch =
+      selectedMedium === "All" ||
+      noteMedium === selectedMedium;
+
     return (
       typeMatch &&
       classMatch &&
-      subjectMatch
+      subjectMatch &&
+      mediumMatch
     );
   });
+
+
+  // =========================================
+  // RESET FILTERS
+  // =========================================
+
+  const resetFilters = () => {
+    setSelectedType("All");
+    setSelectedClass("All");
+    setSelectedSubject("All");
+    setSelectedMedium("All");
+  };
+
 
   return (
     <main className="min-h-screen bg-gray-100">
@@ -210,7 +266,9 @@ export default function DownloadsPage() {
           </h2>
 
 
-          {/* MATERIAL TYPE */}
+          {/* =================================
+              MATERIAL TYPE
+          ================================== */}
 
           <div className="flex flex-wrap gap-3">
 
@@ -235,7 +293,9 @@ export default function DownloadsPage() {
           </div>
 
 
-          {/* CLASS FILTER */}
+          {/* =================================
+              CLASS FILTER
+          ================================== */}
 
           <div className="mt-7">
 
@@ -270,7 +330,9 @@ export default function DownloadsPage() {
           </div>
 
 
-          {/* SUBJECT FILTER */}
+          {/* =================================
+              SUBJECT FILTER
+          ================================== */}
 
           <div className="mt-7">
 
@@ -305,18 +367,52 @@ export default function DownloadsPage() {
           </div>
 
 
-          {/* RESET */}
+          {/* =================================
+              MEDIUM FILTER
+          ================================== */}
+
+          <div className="mt-7">
+
+            <h3 className="text-lg font-bold text-gray-900 mb-3">
+              🌐 Select Medium
+            </h3>
+
+            <div className="flex flex-wrap gap-3">
+
+              {mediums.map((medium) => (
+
+                <button
+                  key={medium.name}
+                  onClick={() =>
+                    setSelectedMedium(medium.name)
+                  }
+                  className={`px-5 py-2.5 rounded-lg font-semibold transition ${
+                    selectedMedium === medium.name
+                      ? "bg-orange-500 !text-white shadow-md"
+                      : "bg-gray-100 text-gray-800 hover:bg-orange-50 hover:text-orange-600"
+                  }`}
+                >
+                  {medium.label}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              RESET
+          ================================== */}
 
           {(selectedType !== "All" ||
             selectedClass !== "All" ||
-            selectedSubject !== "All") && (
+            selectedSubject !== "All" ||
+            selectedMedium !== "All") && (
 
             <button
-              onClick={() => {
-                setSelectedType("All");
-                setSelectedClass("All");
-                setSelectedSubject("All");
-              }}
+              onClick={resetFilters}
               className="mt-6 bg-gray-700 !text-white px-5 py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
             >
               🔄 Reset Filters
@@ -363,11 +459,7 @@ export default function DownloadsPage() {
             </p>
 
             <button
-              onClick={() => {
-                setSelectedType("All");
-                setSelectedClass("All");
-                setSelectedSubject("All");
-              }}
+              onClick={resetFilters}
               className="mt-6 bg-blue-600 !text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
             >
               Show All Materials
@@ -394,14 +486,22 @@ export default function DownloadsPage() {
             </div>
 
 
-            {/* CARDS */}
+            {/* =================================
+                CARDS
+            ================================== */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
               {filteredNotes.map((note) => {
 
                 const noteType =
-                  note.materialType || note.type || "Study Notes";
+                  note.materialType ||
+                  note.type ||
+                  "Study Notes";
+
+                const noteMedium =
+                  note.medium || "";
+
 
                 return (
 
@@ -445,7 +545,7 @@ export default function DownloadsPage() {
                       </span>
 
 
-                      {/* CLASS + SUBJECT */}
+                      {/* CLASS + SUBJECT + MEDIUM */}
 
                       <div className="flex flex-wrap gap-2">
 
@@ -456,6 +556,20 @@ export default function DownloadsPage() {
                         <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
                           {note.subject}
                         </span>
+
+                        {noteMedium ? (
+
+                          <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            🌐 {noteMedium} Medium
+                          </span>
+
+                        ) : (
+
+                          <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-semibold">
+                            🌐 Medium Not Specified
+                          </span>
+
+                        )}
 
                       </div>
 
@@ -503,6 +617,7 @@ export default function DownloadsPage() {
                   </div>
 
                 );
+
               })}
 
             </div>

@@ -37,6 +37,7 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [studentClass, setStudentClass] = useState("");
   const [subject, setSubject] = useState("");
+  const [medium, setMedium] = useState("English");
   const [materialType, setMaterialType] = useState("Study Notes");
   const [description, setDescription] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
@@ -55,6 +56,16 @@ export default function AdminPage() {
     "Extra Questions",
     "CBSE Sample Papers",
     "Previous Year Papers",
+  ];
+
+  // ==============================
+  // MEDIUMS
+  // ==============================
+
+  const mediums = [
+    "English",
+    "Hindi",
+    "Hinglish",
   ];
 
   // ==============================
@@ -160,6 +171,7 @@ export default function AdminPage() {
     setTitle("");
     setStudentClass("");
     setSubject("");
+    setMedium("English");
     setMaterialType("Study Notes");
     setDescription("");
     setPdfUrl("");
@@ -176,6 +188,7 @@ export default function AdminPage() {
       !title.trim() ||
       !studentClass.trim() ||
       !subject.trim() ||
+      !medium.trim() ||
       !description.trim() ||
       !pdfUrl.trim()
     ) {
@@ -197,6 +210,8 @@ export default function AdminPage() {
           class: studentClass.trim(),
 
           subject: subject.trim(),
+
+          medium: medium.trim(),
 
           materialType: materialType,
 
@@ -246,6 +261,7 @@ export default function AdminPage() {
       !title.trim() ||
       !studentClass.trim() ||
       !subject.trim() ||
+      !medium.trim() ||
       !description.trim() ||
       !pdfUrl.trim()
     ) {
@@ -267,6 +283,8 @@ export default function AdminPage() {
           class: studentClass.trim(),
 
           subject: subject.trim(),
+
+          medium: medium.trim(),
 
           materialType: materialType,
 
@@ -351,6 +369,10 @@ export default function AdminPage() {
 
     setSubject(
       note.subject || ""
+    );
+
+    setMedium(
+      note.medium || "English"
     );
 
     setMaterialType(
@@ -543,6 +565,38 @@ export default function AdminPage() {
                 <option value="Social Science">
                   Social Science
                 </option>
+              </select>
+            </div>
+
+
+            {/* MEDIUM */}
+
+            <div>
+              <label className="font-semibold text-gray-900 block mb-2">
+                Medium
+              </label>
+
+              <select
+                value={medium}
+                onChange={(e) =>
+                  setMedium(e.target.value)
+                }
+                className="border border-gray-300 text-gray-900 bg-white rounded-lg p-3 w-full"
+              >
+                <option value="">
+                  Select Medium
+                </option>
+
+                {mediums.map(
+                  (item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item} Medium
+                    </option>
+                  )
+                )}
               </select>
             </div>
 
@@ -821,16 +875,34 @@ export default function AdminPage() {
 
                         <div className="flex flex-wrap gap-2 mt-2">
 
+                          {/* CLASS */}
+
                           <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
                             Class {note.class}
                           </span>
+
+
+                          {/* SUBJECT */}
 
                           <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
                             {note.subject}
                           </span>
 
+
+                          {/* MEDIUM */}
+
+                          <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            {note.medium
+                              ? `${note.medium} Medium`
+                              : "English Medium"}
+                          </span>
+
+
+                          {/* MATERIAL TYPE */}
+
                           <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            {note.materialType || "Study Notes"}
+                            {note.materialType ||
+                              "Study Notes"}
                           </span>
 
                         </div>

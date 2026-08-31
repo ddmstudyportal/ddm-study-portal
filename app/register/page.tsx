@@ -1,91 +1,276 @@
 "use client";
 
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
+
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+} from "firebase/auth";
+
 import { auth, db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+
+import {
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
+  // =========================================
+  // STATES
+  // =========================================
 
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] =
+    useState("");
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  // =========================================
+  // REGISTER
+  // =========================================
 
+  const handleRegister = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
-    setMessage("");
+    if (loading) {
+      return;
+    }
 
-    if (!name || !mobile || !email || !password || !confirmPassword) {
+    setMessage("");
+    setSuccess(false);
+
+    // =======================================
+    // CLEAN DATA
+    // =======================================
+
+    const cleanName = name.trim();
+    const cleanMobile = mobile.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    // =======================================
+    // REQUIRED FIELD VALIDATION
+    // =======================================
+
+    if (
+      !cleanName ||
+      !cleanMobile ||
+      !cleanEmail ||
+      !password ||
+      !confirmPassword
+    ) {
       setMessage("Please fill all fields.");
       return;
     }
 
-    if (mobile.length !== 10) {
-      setMessage("Enter a valid 10-digit mobile number.");
+    // =======================================
+    // MOBILE VALIDATION
+    // =======================================
+
+    if (!/^[0-9]{10}$/.test(cleanMobile)) {
+      setMessage(
+        "Please enter a valid 10-digit mobile number."
+      );
       return;
     }
+
+    // =======================================
+    // EMAIL VALIDATION
+    // =======================================
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        cleanEmail
+      )
+    ) {
+      setMessage(
+        "Please enter a valid email address."
+      );
+      return;
+    }
+
+    // =======================================
+    // PASSWORD VALIDATION
+    // =======================================
+
+    if (password.length < 6) {
+      setMessage(
+        "Password must be at least 6 characters."
+      );
+      return;
+    }
+
+    // =======================================
+    // CONFIRM PASSWORD
+    // =======================================
 
     if (password !== confirmPassword) {
       setMessage("Passwords do not match.");
       return;
     }
 
-    try {
+    // =======================================
+    // START REGISTRATION
+    // =======================================
 
-      setLoading(true);
+    setLoading(true);
+
+    try {
+      // =====================================
+      // CREATE FIREBASE AUTH ACCOUNT
+      // =====================================
 
       const userCredential =
         await createUserWithEmailAndPassword(
           auth,
-          email,
+          cleanEmail,
           password
         );
 
       const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name,
-        mobile,
-        email,
-        role: "student",
-        createdAt: new Date(),
-      });
+      // =====================================
+      // SAVE USER PROFILE TO FIRESTORE
+      // =====================================
 
-      setMessage("Account created successfully!");
+      try {
+        await setDoc(
+          doc(db, "users", user.uid),
+          {
+            uid: user.uid,
+            name: cleanName,
+            mobile: cleanMobile,
+            email: cleanEmail,
+            role: "student",
+            createdAt: serverTimestamp(),
+          }
+        );
+      } catch {
+        // ===================================
+        // ROLLBACK AUTH USER
+        // ===================================
 
+        try {
+          await deleteUser(user);
+        } catch {
+          // Rollback failed.
+          // Original Firestore error is handled below.
+        }
+
+        throw new Error(
+          "Account create ho gaya tha, lekin profile save nahi ho paayi. Please try again."
+        );
+      }
+
+      // =====================================
+      // SUCCESS
+      // =====================================
+
+      setSuccess(true);
+
+      setMessage(
+        "Account created successfully! Redirecting to Login..."
+      );
+
+      // Clear form
       setName("");
       setMobile("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
 
+      // =====================================
+      // REDIRECT TO LOGIN
+      // =====================================
+
+      setTimeout(() => {
+        router.replace("/login");
+      }, 1500);
     } catch (error: any) {
+      // =====================================
+      // FIREBASE ERROR HANDLING
+      // =====================================
 
-      setMessage(error.message);
+      let errorMessage =
+        "Account create nahi ho pa raha hai. Please try again.";
 
+      switch (error?.code) {
+        case "auth/email-already-in-use":
+          errorMessage =
+            "This email is already registered. Please use another email or Login.";
+          break;
+
+        case "auth/invalid-email":
+          errorMessage =
+            "Please enter a valid email address.";
+          break;
+
+        case "auth/weak-password":
+          errorMessage =
+            "Password is too weak. Please use at least 6 characters.";
+          break;
+
+        case "auth/operation-not-allowed":
+          errorMessage =
+            "Email/Password registration Firebase me enabled nahi hai.";
+          break;
+
+        case "auth/network-request-failed":
+          errorMessage =
+            "Network problem. Please check your internet connection.";
+          break;
+
+        case "auth/too-many-requests":
+          errorMessage =
+            "Too many attempts. Please wait for some time and try again.";
+          break;
+
+        case "auth/admin-restricted-operation":
+          errorMessage =
+            "Registration is currently restricted by Firebase settings.";
+          break;
+
+        default:
+          if (
+            error?.message?.includes(
+              "profile save nahi ho paayi"
+            )
+          ) {
+            errorMessage =
+              "Account create ho gaya tha, lekin profile save nahi ho paayi. Please try again.";
+          }
+          break;
+      }
+
+      setSuccess(false);
+      setMessage(errorMessage);
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
+  // =========================================
+  // UI
+  // =========================================
+
   return (
+    <main className="min-h-screen bg-gradient-to-r from-indigo-100 to-blue-100 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-10">
 
-    <main className="min-h-screen bg-gradient-to-r from-indigo-100 to-blue-100 flex items-center justify-center px-6 py-10">
+      <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 md:p-10 w-full max-w-lg">
 
-      <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-lg">
-
-        {/* Header */}
+        {/* ===================================
+            HEADER
+        =================================== */}
 
         <div className="text-center mb-8">
 
@@ -93,7 +278,7 @@ export default function RegisterPage() {
             DDM
           </h1>
 
-          <p className="text-gray-700 font-medium">
+          <p className="text-gray-700 font-medium mt-1">
             Dream • Discover • Master
           </p>
 
@@ -101,17 +286,24 @@ export default function RegisterPage() {
             Create Student Account
           </h2>
 
+          <p className="text-gray-600 text-sm mt-2">
+            Register to access DDM Study Portal
+          </p>
+
         </div>
 
+        {/* ===================================
+            REGISTER FORM
+        =================================== */}
 
-        {/* Register Form */}
+        <form
+          onSubmit={handleRegister}
+          className="space-y-5"
+        >
 
-        <form onSubmit={handleRegister} className="space-y-5">
-
-          {/* Full Name */}
+          {/* FULL NAME */}
 
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Full Name
             </label>
@@ -120,37 +312,48 @@ export default function RegisterPage() {
               type="text"
               placeholder="Enter your full name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setName(e.target.value)
+              }
+              disabled={loading}
+              autoComplete="name"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
-
           </div>
 
-
-          {/* Mobile Number */}
+          {/* MOBILE */}
 
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Mobile Number
             </label>
 
             <input
               type="tel"
-              placeholder="Enter your mobile number"
+              inputMode="numeric"
+              placeholder="Enter 10-digit mobile number"
               value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                  .replace(/\D/g, "")
+                  .slice(0, 10);
+
+                setMobile(value);
+              }}
+              disabled={loading}
               maxLength={10}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="tel"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
 
+            <p className="text-xs text-gray-500 mt-1">
+              Enter exactly 10 digits
+            </p>
           </div>
 
-
-          {/* Email */}
+          {/* EMAIL */}
 
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Email Address
             </label>
@@ -159,17 +362,18 @@ export default function RegisterPage() {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              disabled={loading}
+              autoComplete="email"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
-
           </div>
 
-
-          {/* Password */}
+          {/* PASSWORD */}
 
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Password
             </label>
@@ -178,17 +382,22 @@ export default function RegisterPage() {
               type="password"
               placeholder="Create password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              disabled={loading}
+              autoComplete="new-password"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
 
+            <p className="text-xs text-gray-500 mt-1">
+              Minimum 6 characters
+            </p>
           </div>
 
-
-          {/* Confirm Password */}
+          {/* CONFIRM PASSWORD */}
 
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Confirm Password
             </label>
@@ -197,47 +406,50 @@ export default function RegisterPage() {
               type="password"
               placeholder="Confirm password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setConfirmPassword(
+                  e.target.value
+                )
+              }
+              disabled={loading}
+              autoComplete="new-password"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
-
           </div>
 
-
-          {/* Register Button */}
+          {/* REGISTER BUTTON */}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 !text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full bg-blue-600 !text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading
+              ? "Creating Account..."
+              : "Create Account"}
           </button>
 
-
-          {/* Message */}
+          {/* MESSAGE */}
 
           {message && (
-
-            <p
-              className={`text-center font-semibold ${
-                message.includes("successfully")
-                  ? "text-green-700"
-                  : "text-red-600"
+            <div
+              className={`rounded-lg p-3 text-center font-semibold text-sm ${
+                success
+                  ? "bg-green-100 text-green-700 border border-green-300"
+                  : "bg-red-100 text-red-700 border border-red-300"
               }`}
             >
               {message}
-            </p>
-
+            </div>
           )}
 
         </form>
 
-
-        {/* Login Link */}
+        {/* ===================================
+            LOGIN LINK
+        =================================== */}
 
         <p className="text-center mt-6 text-gray-800 font-medium">
-
           Already have an account?
 
           <a
@@ -246,12 +458,10 @@ export default function RegisterPage() {
           >
             Login
           </a>
-
         </p>
 
       </div>
 
     </main>
-
   );
 }
