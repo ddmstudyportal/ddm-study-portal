@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -164,7 +165,6 @@ export default function RegisterPage() {
           await deleteUser(user);
         } catch {
           // Rollback failed.
-          // Original Firestore error is handled below.
         }
 
         throw new Error(
@@ -269,24 +269,45 @@ export default function RegisterPage() {
       <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 md:p-10 w-full max-w-lg">
 
         {/* ===================================
-            HEADER
+            DDM HEADER
         =================================== */}
 
         <div className="text-center mb-8">
 
-          <h1 className="text-4xl font-bold text-blue-600">
+          {/* DDM LOGO */}
+
+          <div className="flex justify-center mb-3">
+            <Image
+              src="/images/ddm-logo.png"
+              alt="DDM Dream Discover Master Study Portal Logo"
+              width={110}
+              height={110}
+              priority
+              className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
+            />
+          </div>
+
+          {/* BRAND NAME */}
+
+          <h1 className="text-3xl sm:text-4xl font-bold text-blue-600">
             DDM
           </h1>
 
-          <p className="text-gray-700 font-medium mt-1">
+          <p className="text-gray-800 font-semibold mt-1">
             Dream • Discover • Master
           </p>
+
+          <p className="text-gray-700 text-sm font-medium mt-1">
+            Study Portal
+          </p>
+
+          {/* PAGE TITLE */}
 
           <h2 className="text-2xl font-bold mt-6 text-gray-900">
             Create Student Account
           </h2>
 
-          <p className="text-gray-600 text-sm mt-2">
+          <p className="text-gray-700 text-sm mt-2">
             Register to access DDM Study Portal
           </p>
 
@@ -346,7 +367,7 @@ export default function RegisterPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
 
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Enter exactly 10 digits
             </p>
           </div>
@@ -390,7 +411,7 @@ export default function RegisterPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             />
 
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Minimum 6 characters
             </p>
           </div>

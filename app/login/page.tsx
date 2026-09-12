@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
@@ -28,26 +29,22 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      // Firebase Authentication Login
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
+        email.trim().toLowerCase(),
         password
       );
 
       const user = userCredential.user;
 
-      // Firestore User Document
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
       let userData: any;
 
       if (userSnap.exists()) {
-        // Existing user data
         userData = userSnap.data();
       } else {
-        // User exists in Firebase Auth but Firestore data is missing
         userData = {
           uid: user.uid,
           email: user.email || email,
@@ -58,7 +55,6 @@ export default function LoginPage() {
         await setDoc(userRef, userData);
       }
 
-      // Admin / Student Redirect
       if (userData.role === "admin") {
         router.push("/admin");
       } else {
@@ -85,6 +81,10 @@ export default function LoginPage() {
           setMessage("Too many attempts. Please try again later.");
           break;
 
+        case "auth/network-request-failed":
+          setMessage("Network error. Please check your internet connection.");
+          break;
+
         default:
           setMessage(error.message || "Login failed.");
       }
@@ -95,19 +95,34 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-100 flex items-center justify-center px-6 py-10">
+    <main className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-100 flex items-center justify-center px-4 sm:px-6 py-10">
 
-      <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-lg">
+      <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-10 w-full max-w-lg">
 
-        {/* Header */}
+        {/* DDM Logo + Header */}
         <div className="text-center mb-8">
+
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/images/ddm-logo.png"
+              alt="DDM Study Portal Logo"
+              width={110}
+              height={110}
+              priority
+              className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
+            />
+          </div>
 
           <h1 className="text-4xl font-bold text-blue-600">
             DDM
           </h1>
 
-          <p className="text-gray-700 font-medium">
+          <p className="text-gray-800 font-semibold mt-1">
             Dream • Discover • Master
+          </p>
+
+          <p className="text-gray-600 text-sm mt-1">
+            Study Portal
           </p>
 
           <h2 className="text-2xl font-bold mt-6 text-gray-900">
@@ -121,7 +136,6 @@ export default function LoginPage() {
 
           {/* Email */}
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Email Address
             </label>
@@ -133,12 +147,10 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
           {/* Password */}
           <div>
-
             <label className="block mb-2 font-semibold text-gray-900">
               Password
             </label>
@@ -150,7 +162,6 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder:text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
           {/* Error */}
@@ -173,7 +184,6 @@ export default function LoginPage() {
 
         {/* Register */}
         <p className="text-center mt-6 text-gray-800 font-medium">
-
           Don't have an account?
 
           <a
@@ -182,7 +192,6 @@ export default function LoginPage() {
           >
             Register
           </a>
-
         </p>
 
       </div>

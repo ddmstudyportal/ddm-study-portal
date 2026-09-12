@@ -160,20 +160,29 @@ export default function Footer() {
             {/* Contact Information */}
             <div className="space-y-4">
 
+              {/* Email */}
               <p className="text-lg !text-white">
                 📧{" "}
-                <span className="font-semibold !text-white">
-                  info@ddmstudy.in
-                </span>
+                <a
+                  href="mailto:info.ddmstudyportal@gmail.com"
+                  className="font-semibold !text-white hover:!text-blue-400 transition"
+                >
+                  info.ddmstudyportal@gmail.com
+                </a>
               </p>
 
+              {/* Phone */}
               <p className="text-lg !text-white">
                 📞{" "}
-                <span className="font-semibold !text-white">
-                  +91 9876543210
-                </span>
+                <a
+                  href="tel:+917982661287"
+                  className="font-semibold !text-white hover:!text-blue-400 transition"
+                >
+                  +91 7982661287
+                </a>
               </p>
 
+              {/* Location */}
               <p className="text-lg !text-white">
                 📍{" "}
                 <span className="font-semibold !text-white">
@@ -184,28 +193,35 @@ export default function Footer() {
             </div>
 
             {/* Social Links */}
-            <div className="flex flex-wrap md:justify-end items-start gap-6">
+            <div className="flex flex-col gap-4 md:items-end">
 
-              <a
-                href="#"
-                className="text-lg font-bold !text-white hover:!text-blue-400 transition"
-              >
-                Facebook
-              </a>
+              <h3 className="text-xl font-bold !text-white">
+                Follow Us
+              </h3>
 
-              <a
-                href="#"
-                className="text-lg font-bold !text-white hover:!text-pink-400 transition"
-              >
-                Instagram
-              </a>
+              <div className="flex flex-wrap md:justify-end gap-5">
 
-              <a
-                href="#"
-                className="text-lg font-bold !text-white hover:!text-red-400 transition"
-              >
-                YouTube
-              </a>
+                {/* Facebook */}
+                <a
+                  href="https://www.facebook.com/share/1KSTb6xYwK/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg font-bold !text-white hover:!text-blue-400 transition"
+                >
+                  👍 Facebook
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com/ddm_study_portal?stkn=MTExOXJoZ2liMWxheQ=="
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg font-bold !text-white hover:!text-pink-400 transition"
+                >
+                  📸 Instagram
+                </a>
+
+              </div>
 
             </div>
 
